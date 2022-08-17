@@ -1,0 +1,27 @@
+---
+title: "EDS 221 Day 8 Activities"
+author: "Dalila Lara"
+date: "2022-08-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(here)
+library(tidyverse)
+library(ggplot2)
+```
+
+# Task 1 Worst data viz
+```{r}
+space_launches <- read_csv(here("data", "space_launches.csv"))
+
+ggplot(data = space_launches,
+       aes(x = mission,
+           y = launch_year)) +
+  geom_
+```
+

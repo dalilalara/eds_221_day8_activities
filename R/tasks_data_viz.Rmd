@@ -13,15 +13,85 @@ knitr::opts_chunk$set(echo = TRUE)
 library(here)
 library(tidyverse)
 library(ggplot2)
+library(paletteer)
+library(png)
+library(patchwork)
+library(dplyr)
+library(grid)
 ```
 
 # Task 1 Worst data viz
 ```{r}
 space_launches <- read_csv(here("data", "space_launches.csv"))
+my_image <- readPNG(here("image.png"))
 
-ggplot(data = space_launches,
-       aes(x = mission,
-           y = launch_year)) +
-  geom_
+
+bad_plot <- ggplot(data = space_launches,
+       aes(x = agency_type, y = launch_year)) +
+  geom_point(aes(size = 7,
+                 color = launch_year)) +
+  annotation_custom(rasterGrob(my_image,
+                               width = unit(1,"npc"),
+                               height = unit(1,"npc")),
+                    -Inf, Inf, -Inf, Inf) +
+  ggtitle("Space data") +
+    theme(panel.grid = element_line(color = "dodgerblue")) +
+  scale_color_steps(low = "blue", high = "orange")
+
+ggsave(here("bad_plot.png"))
 ```
+
+# Task 2 Wrangling practice green house gas data
+```{r}
+#read in data 
+sf_data <- read_csv(here("data", "San_Francisco_Communitywide_Greenhouse_Gas_Inventory.csv"))
+
+#summary table of total annual greenhouse gas emmision by sector_general 
+
+summ_1 <- sf_data |>
+  select(Emissions_mtCO2e, Sector_General) |>
+  summarize(
+    Sector_General = n(),
+    count(n)
+  )
+
+#Create a summary table of total annual greenhouse gas emissions (only from Emissions_mtCO2e column) by year and commodity type
+
+summ_2 <- sf_data |>
+  select(Emissions_mtCO2e, Calendar_Year, Commodity_Type) |>
+  summarize(
+    Calendar_Year = n(),
+    Commodity_Type = n()
+  )
+
+#Create a subset of the data that only contains observations from 2005 on, only for observations where Sector_Detail2 contains the pattern “PG&E”, then limit to columns Calendar_Year, Sector_Detail2 and Emissions_mtCO2e.
+
+sub_3 <- sf_data |>
+  filter(Calendar_Year >= 2005 | Sector_Detail2 == c("PG&E")) |>
+    select(Calendar_Year, Sector_Detail2, Emissions_mtCO2e)
+```
+
+# Task 3 Do your data vis 
+```{r}
+#Create a finalized graph (as perfect as you can make it) using the San Francisco GHG emissions dataset. You get to choose what you want to visualize. You can pick which variables & observations you’re interested in. You may want to do some wrangling / summarizing first.
+
+space_3 <- space_launches |>
+  select(launch_year, agency_type, mission)
+  
+
+ggplot(data = space_3,
+       aes(x = fct_reorder(agency_type, launch_year), y = launch_year)) +
+  geom_line((aes(size = 0.5,
+                 color = agency_type)),
+             show.legend = FALSE) +
+  scale_fill_paletteer_d(palette = "beyonce::X77") +
+  theme_minimal() +
+  labs( title = "Agency spaces launches over years",
+        x = "Agency type",
+        y = "Launch year"
+          ) 
+
+
+```
+
 
